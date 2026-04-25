@@ -54,6 +54,8 @@ class LyricSection:
 
     @property
     def is_instrumental(self) -> bool:
+        # Both 'instrumental' and 'break' are treated as non-vocal sections
+        # and are skipped during synthesis (no TTS output generated).
         return self.section_type in ("instrumental", "break")
 
 

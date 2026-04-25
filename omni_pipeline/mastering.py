@@ -178,6 +178,6 @@ def master(
     audio = _lufs_normalise(audio, sr, target_lufs)
     audio = _peak_limit(audio, ceiling=-1.0)  # final safety limiter
 
-    sf.write(str(output_path), audio.astype(np.float32), sr, subtype="PCM_16")
+    sf.write(str(output_path), audio.astype(np.float32), sr, subtype="FLOAT")
     print(f"  ✅ Mastered → {output_path.name}  [{preset} / {target_lufs} LUFS]")
     return output_path

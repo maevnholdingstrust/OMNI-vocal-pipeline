@@ -64,11 +64,13 @@ class TTSEngine:
         voice_preset: str = "v2/en_speaker_6",
         singing_mode: bool = True,
         edge_tts_voice: str = "en-US-JennyNeural",
+        line_silence_ms: float = 300,
     ) -> None:
         self.engine = engine.lower()
         self.voice_preset = voice_preset
         self.singing_mode = singing_mode
         self.edge_tts_voice = edge_tts_voice
+        self.line_silence_ms = line_silence_ms
 
         if self.engine == "bark":
             _load_bark()
@@ -120,8 +122,11 @@ class TTSEngine:
                     history_prompt=self.voice_preset,
                 )
                 clips.append(audio)
-                # Short silence between lines (~0.3 s)
-                silence = np.zeros(int(_bark_sample_rate * 0.3), dtype=np.float32)
+                # Short silence between lines (configurable via line_silence_ms)
+                silence = np.zeros(
+                    int(_bark_sample_rate * self.line_silence_ms / 1000.0),
+                    dtype=np.float32,
+                )
                 clips.append(silence)
 
             combined = np.concatenate(clips).astype(np.float32)

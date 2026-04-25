@@ -41,8 +41,8 @@ def _load_config(config_path: str | Path) -> dict:
         return yaml.safe_load(fh)
 
 
-def _get(cfg: dict, *keys, default=None):
-    """Safely walk a nested dict."""
+def _get_nested_config(cfg: dict, *keys, default=None):
+    """Safely walk a nested dict and return the value at the given key path."""
     node = cfg
     for k in keys:
         if not isinstance(node, dict):
@@ -105,7 +105,7 @@ def run(
     config_path = Path(config_path).expanduser().resolve()
     cfg = _load_config(config_path)
 
-    out_dir = Path(_get(cfg, "output", "dir", default="output")).expanduser().resolve()
+    out_dir = Path(_get_nested_config(cfg, "output", "dir", default="output")).expanduser().resolve()
     out_dir.mkdir(parents=True, exist_ok=True)
 
     stem = output_name or "output"
@@ -134,7 +134,7 @@ def run(
 
     # ── 2. TTS synthesis ──────────────────────────────────────────────────────
     print("\n● [2/4] TTS synthesis …")
-    tts_cfg = _get(cfg, "tts") or {}
+    tts_cfg = _get_nested_config(cfg, "tts") or {}
     tts = TTSEngine(
         engine=tts_cfg.get("engine", "bark"),
         voice_preset=tts_cfg.get("bark_voice_preset", "v2/en_speaker_6"),
@@ -151,15 +151,15 @@ def run(
 
     # ── 3. RVC voice conversion ───────────────────────────────────────────────
     print("\n● [3/4] RVC voice conversion …")
-    model_cfg = _get(cfg, "model") or {}
-    pth_path = _get(cfg, "model", "pth_path", default=None)
+    model_cfg = _get_nested_config(cfg, "model") or {}
+    pth_path = _get_nested_config(cfg, "model", "pth_path", default=None)
     if not pth_path:
         raise ValueError(
             "model.pth_path is not set in config.yaml.\n"
             "Set it to the path of your .pth voice model file."
         )
 
-    device_pref = _get(cfg, "device", default="auto")
+    device_pref = _get_nested_config(cfg, "device", default="auto")
     rvc = RVCEngine(
         pth_path=pth_path,
         f0_method=model_cfg.get("f0_method", "rmvpe"),
@@ -179,7 +179,7 @@ def run(
 
     # ── Assemble all sections ─────────────────────────────────────────────────
     assembled_path = tmp_dir / f"{stem}_assembled.wav"
-    out_cfg = _get(cfg, "output") or {}
+    out_cfg = _get_nested_config(cfg, "output") or {}
     _concat_wavs(
         rvc_wavs,
         assembled_path,
@@ -189,7 +189,7 @@ def run(
 
     # ── 4. Mastering ──────────────────────────────────────────────────────────
     print("\n● [4/4] Mastering …")
-    master_cfg = _get(cfg, "mastering") or {}
+    master_cfg = _get_nested_config(cfg, "mastering") or {}
     final_path = out_dir / f"{stem}_mastered.wav"
 
     if master_cfg.get("enabled", True):

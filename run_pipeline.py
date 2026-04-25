@@ -151,7 +151,7 @@ def main() -> None:
     cfg = _patch_config(cfg, args)
 
     # Write a temporary patched config so pipeline.run() can read it
-    import tempfile, json
+    import tempfile
 
     with tempfile.NamedTemporaryFile(
         mode="w", suffix=".yaml", delete=False, encoding="utf-8"
