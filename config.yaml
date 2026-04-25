@@ -1,0 +1,39 @@
+# ─────────────────────────────────────────────
+#  OMNI Vocal Pipeline — local configuration
+# ─────────────────────────────────────────────
+
+# ── Voice model ──────────────────────────────
+# Absolute or relative path to your .pth file
+# Example: /Users/you/models/maevn1.pth
+model:
+  pth_path: "models/maevn1.pth"   # REQUIRED — path to your .pth voice model
+  f0_method: "rmvpe"              # pitch detection: rmvpe | harvest | crepe | pm
+  f0_up_key: 0                    # semitone shift (+/- integer, 0 = no shift)
+  index_rate: 0                   # 0 = disabled (no .index file needed)
+  filter_radius: 3                # median filter strength (1-7)
+  rms_mix_rate: 0.25              # volume envelope mix (0.0-1.0)
+  protect: 0.33                   # consonant protection (0.0-0.5)
+
+# ── TTS / Singing synthesis ───────────────────
+tts:
+  engine: "bark"                  # bark | edge-tts (bark recommended for singing)
+  bark_voice_preset: "v2/en_speaker_6"  # Bark speaker preset
+  singing_mode: true              # wrap lyrics in ♪ for Bark singing output
+  # edge_tts_voice: "en-US-JennyNeural"  # used only when engine = edge-tts
+
+# ── Output ────────────────────────────────────
+output:
+  dir: "output"                   # folder where rendered files are saved
+  sample_rate: 44100              # output sample rate
+  crossfade_ms: 200               # ms of crossfade between sections
+  silence_between_sections_ms: 400  # ms of silence gap between sections
+
+# ── Mastering ────────────────────────────────
+mastering:
+  enabled: true
+  preset: "streaming"             # streaming | vinyl | club | bright_pop | raw
+  target_lufs: -14.0              # integrated loudness target (EBU R128)
+  # reference_track: "ref/my_reference.wav"  # optional matchering reference
+
+# ── Device ───────────────────────────────────
+device: "auto"                    # auto | cpu | cuda | cuda:0 | mps

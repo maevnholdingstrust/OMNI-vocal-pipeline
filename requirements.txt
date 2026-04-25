@@ -1,0 +1,27 @@
+# Core audio
+torch>=2.0.0
+torchaudio>=2.0.0
+soundfile>=0.12.1
+numpy>=1.24.0
+pydub>=0.25.1
+scipy>=1.10.0
+librosa>=0.10.0
+
+# TTS — Bark for singing synthesis
+suno-bark
+
+# Voice conversion — RVC inference (PTH-only, no index required)
+rvc-python
+
+# Pitch detection
+praat-parselmouth>=0.4.3
+pyworld>=0.3.4
+
+# Audio mastering / loudness
+pyloudnorm>=0.1.1
+matchering>=2.0.6
+
+# Utilities
+PyYAML>=6.0
+tqdm>=4.65.0
+colorama>=0.4.6

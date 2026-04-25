@@ -1,38 +1,168 @@
 # OMNI-vocal-pipeline
 
-**End-to-end AI Vocal Cloning Pipeline**  
-Full song → Automatic Lead/Backup vocal separation → RVC cloning with **maevn1** model → Prompt-based AI Mastering
+**Local end-to-end AI Vocal Production Pipeline**
 
-Optimized for **Google Colab Free Tier (T4 GPU)**.
+```
+Lyrics (Suno-style blocks)
+  → Bark singing synthesis
+  → RVC voice cloning with your .PTH model
+  → Audio mastering
+  → Final WAV
+```
 
-### Features
-- Generic `new_render_slot` — just drop any audio files
-- Efficient lead vs backup vocals separation (T4-friendly models)
-- RVC inference with your `maevn1.pth`
-- Prompt-driven AI mastering ("loud streaming master", "warm vinyl", "punchy club", etc.)
-- Fully modular and easy to maintain
+Runs **completely on your local machine** — no Colab, no cloud, no `.index` file needed.  
+Just your `.pth` voice model and a text file of lyrics.
 
-### Quick Start
+---
 
-[![Open in Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/maevnholdingtrust/OMNI-vocal-pipeline/blob/main/main_pipeline.ipynb)
+## Features
 
-1. Click the badge above to open in Colab
-2. Run Cell 1 (Setup)
-3. Run Cell 2 (Upload your `maevn1.pth` + index)
-4. Drop your songs into the `new_render_slot` folder
-5. Run the processing + mastering cells
-6. Download your mastered maevn1 clones
+- **Suno-style lyric blocks** — paste lyrics with `[Verse]`, `[Chorus]`, `[Bridge]`, etc.
+- **Bark TTS** — generates singing-like audio from text (♪ mode)
+- **RVC voice cloning** — applies your `.pth` model without any `.index` file
+- **Mastering presets** — streaming, vinyl, club, bright_pop, raw
+- **CLI + Python API** — use from the command line or import as a library
+- **GPU-optional** — runs on CPU (slow) or CUDA/Apple MPS (fast)
 
-### Repository Structure
-- `main_pipeline.ipynb` → Complete single notebook
-- `requirements.txt` → All dependencies
-- `README.md` → This file
+---
 
-### Future Plans
-- Separate Python modules
-- Gradio web UI
-- Mix cloned vocal with instrumental
-- Better reference-based mastering
+## Quick Start (Local)
+
+### 1. Install dependencies
+
+```bash
+# Python 3.10+ recommended
+python -m venv venv
+source venv/bin/activate        # Windows: venv\Scripts\activate
+
+pip install -r requirements.txt
+```
+
+> First run downloads Bark model weights (~5 GB) and RVC/HuBERT assets automatically.
+
+### 2. Configure
+
+Edit `config.yaml` and set your `.pth` path:
+
+```yaml
+model:
+  pth_path: "/absolute/path/to/maevn1.pth"   # ← your .PTH file here
+```
+
+No `.index` file is required — RVC runs with `index_rate: 0`.
+
+### 3. Write your lyrics
+
+Create a `song.txt` file in Suno block format:
+
+```
+[Verse 1]
+I walk alone under neon skies
+The city never sleeps, neither do I
+
+[Chorus]
+Echoes of the night, calling out my name
+We're burning bright, we'll never be the same
+
+[Bridge]
+In the silence I can hear you calling
+```
+
+### 4. Run the pipeline
+
+```bash
+python run_pipeline.py song.txt
+```
+
+Output lands in `output/output_mastered.wav`.
+
+#### Other options
+
+```bash
+# Custom output name
+python run_pipeline.py song.txt --name my_song
+
+# Override mastering preset
+python run_pipeline.py song.txt --preset vinyl
+
+# Override the .pth path without editing config.yaml
+python run_pipeline.py song.txt --pth /path/to/model.pth
+
+# Skip mastering (raw RVC vocal)
+python run_pipeline.py song.txt --no-master
+
+# Force CPU
+python run_pipeline.py song.txt --device cpu
+```
+
+---
+
+## Supported Lyric Block Tags
+
+| Tag | Description |
+|-----|-------------|
+| `[Intro]` | Opening section |
+| `[Verse]` / `[Verse 1]` | Verse |
+| `[Pre-Chorus]` | Build before chorus |
+| `[Chorus]` / `[Hook]` | Chorus / Hook |
+| `[Bridge]` | Bridge |
+| `[Refrain]` / `[Tag]` | Repeated hook / outro tag |
+| `[Outro]` | Closing section |
+| `[Break]` / `[Instrumental]` | Skipped (no synthesis) |
+
+---
+
+## Mastering Presets
+
+| Preset | LUFS | Character |
+|--------|------|-----------|
+| `streaming` | -14 | Clean, air on top (default) |
+| `vinyl` | -18 | Warm, low-mid body |
+| `club` | -9 | Punchy, loud |
+| `bright_pop` | -12 | Presence, shimmer |
+| `raw` | -14 | Loudness only, no EQ |
+
+---
+
+## Python API
+
+```python
+from omni_pipeline import run
+
+output_path = run(
+    lyrics=open("song.txt").read(),
+    config_path="config.yaml",
+    output_name="my_song",
+)
+print(f"Done: {output_path}")
+```
+
+---
+
+## Repository Structure
+
+```
+OMNI-vocal-pipeline/
+├── run_pipeline.py          ← CLI entry point
+├── config.yaml              ← user configuration
+├── requirements.txt         ← all dependencies
+├── omni_pipeline/
+│   ├── lyrics_parser.py     ← Suno block parser
+│   ├── tts_engine.py        ← Bark singing TTS
+│   ├── rvc_engine.py        ← RVC inference (.PTH only)
+│   ├── mastering.py         ← audio post-production
+│   └── pipeline.py          ← end-to-end orchestration
+└── main_pipeline.ipynb      ← legacy Colab notebook (reference)
+```
+
+---
+
+## Requirements
+
+- Python 3.10+
+- ~8 GB disk space (Bark model weights + RVC assets on first run)
+- GPU strongly recommended (NVIDIA CUDA or Apple MPS)
+- Your `.pth` voice model — **no `.index` file required**
 
 ---
 
