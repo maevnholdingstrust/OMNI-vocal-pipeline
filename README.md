@@ -37,7 +37,7 @@ Optimized for **Google Colab Free Tier (T4 GPU)**.
 - `/content/quality_program/run_history.jsonl`  
   Versioned per-run metadata + metrics for reproducibility.
 - `/content/quality_program/ab_tests/<track_id>/`  
-  Blind A/B WAVs and fixed scoring rubric CSV.
+  Blind A/B WAVs and fixed scoring rubric CSV (add `listener_summary.json` with `mean_preference_score` to satisfy listener gate).
 - `/content/quality_program/weekly_regression_report.json`  
   Summary of pass rate and artifact trends for continuous improvement.
 
